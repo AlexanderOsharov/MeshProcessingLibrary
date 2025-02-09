@@ -5,30 +5,28 @@
 #include <array>
 
 struct Vertex {
-    float x, y, z;
-    float u, v; // UV-координаты
+    std::array<float, 3> position;
 };
 
 struct Face {
-    std::array<int, 3> indices; // Индексы вершин
+    std::array<int, 3> indices;
+    int index;
 };
 
 class Mesh {
 public:
-    void addVertex(float x, float y, float z);
-    void addFace(int v1, int v2, int v3);
-    void calculateNormals();
-    void simplify(float targetPercentage);
-    
+    std::vector<Vertex> vertices;
+    std::vector<Face> faces;
+
+    void clear();
+    void computeFaceNormals();
+    void computeVertexNormals();
+
     std::vector<std::array<float, 3>> getFaceNormals() const;
     std::vector<std::array<float, 3>> getVertexNormals() const;
 
-    const std::vector<Vertex>& getVertices() const;
-    const std::vector<Face>& getFaces() const;
-
 private:
-    std::vector<Vertex> m_vertices;
-    std::vector<Face> m_faces;
+    std::array<float, 3> crossProduct(const std::array<float, 3>& a, const std::array<float, 3>& b);
 };
 
 #endif // MESH_H

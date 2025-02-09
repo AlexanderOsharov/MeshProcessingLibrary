@@ -1,32 +1,48 @@
-cmake_minimum_required(VERSION 3.10)
-project(MeshProcessingLibrary)
+cmake_minimum_required(VERSION 3.15)
+
+project(MeshProcessingLibrary LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-# Подключение HeightMapGenerator
-include(FetchContent)
-FetchContent_Declare(
-    HeightMapGenerator
-    GIT_REPOSITORY https://github.com/AlexanderOsharov/HeightMapGenerator.git
-    GIT_TAG main
+# Добавляем HeightMapGenerator как зависимость
+find_package(Git REQUIRED)
+if(NOT EXISTS "${CMAKE_BINARY_DIR}/HeightMapGenerator")
+    message(STATUS "Cloning HeightMapGenerator...")
+    execute_process(
+        COMMAND ${GIT_EXECUTABLE} clone https://github.com/AlexanderOsharov/HeightMapGenerator.git ${CMAKE_BINARY_DIR}/HeightMapGenerator
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+        RESULT_VARIABLE GIT_CLONE_RESULT
+    )
+    if(NOT GIT_CLONE_RESULT EQUAL 0)
+        message(FATAL_ERROR "Failed to clone HeightMapGenerator")
+    endif()
+endif()
+
+add_subdirectory(${CMAKE_BINARY_DIR}/HeightMapGenerator ${CMAKE_BINARY_DIR}/HeightMapGenerator-build)
+
+# Добавляем свои исходные файлы
+file(GLOB SOURCES "src/*.cpp")
+file(GLOB HEADERS "include/*.h")
+
+add_library(MeshProcessingLibrary STATIC ${SOURCES} ${HEADERS})
+
+target_include_directories(MeshProcessingLibrary PUBLIC 
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>
+    ${CMAKE_BINARY_DIR}/HeightMapGenerator/include
 )
-FetchContent_MakeAvailable(HeightMapGenerator)
 
-# Создание статической библиотеки
-add_library(MeshProcessing STATIC
-    src/Mesh.cpp
-    src/OBJExporter.cpp
-    src/STLExporter.cpp
+target_link_libraries(MeshProcessingLibrary PRIVATE HeightMapGenerator)
+
+# Установка библиотеки
+install(TARGETS MeshProcessingLibrary
+    EXPORT MeshProcessingLibraryTargets
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib
+    RUNTIME DESTINATION bin
+    INCLUDES DESTINATION include
 )
 
-# Подключение заголовочных файлов
-target_include_directories(MeshProcessing PUBLIC include)
-target_include_directories(MeshProcessing PRIVATE ${HeightMapGenerator_SOURCE_DIR}/include)
-
-# Связывание с HeightMapGenerator
-target_link_libraries(MeshProcessing PRIVATE HeightMapGenerator)
-
-# Тестирование
-add_executable(MeshProcessingTest tests/main.cpp)
-target_link_libraries(MeshProcessingTest PRIVATE MeshProcessing)
+install(DIRECTORY include/ DESTINATION include)
+install(EXPORT MeshProcessingLibraryTargets DESTINATION cmake)
