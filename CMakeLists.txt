@@ -1,5 +1,4 @@
 cmake_minimum_required(VERSION 3.15)
-
 project(MeshProcessingLibrary LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -27,12 +26,15 @@ file(GLOB HEADERS "include/*.h")
 
 add_library(MeshProcessingLibrary STATIC ${SOURCES} ${HEADERS})
 
-target_include_directories(MeshProcessingLibrary PUBLIC 
+# Подключение заголовочных файлов
+target_include_directories(MeshProcessingLibrary PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
-    ${CMAKE_BINARY_DIR}/HeightMapGenerator/include
+    $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/HeightMapGenerator/include>
+    $<INSTALL_INTERFACE:include/HeightMapGenerator>
 )
 
+# Связывание с HeightMapGenerator
 target_link_libraries(MeshProcessingLibrary PRIVATE HeightMapGenerator)
 
 # Установка библиотеки
