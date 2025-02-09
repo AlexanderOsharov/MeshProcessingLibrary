@@ -1,8 +1,24 @@
 #include "Mesh.h"
 
+void Mesh::addVertex(float x, float y, float z) {
+    m_vertices.push_back({x, y, z});
+}
+
+void Mesh::addFace(int v1, int v2, int v3) {
+    m_faces.push_back({{v1, v2, v3}});
+}
+
+const std::vector<Mesh::Vertex>& Mesh::getVertices() const {
+    return m_vertices;
+}
+
+const std::vector<Mesh::Face>& Mesh::getFaces() const {
+    return m_faces;
+}
+
 void Mesh::clear() {
-    getFaceNormals().clear();
-    getVertexNormals().assign(vertices.size(), {0.0f, 0.0f, 0.0f});
+    getFaces().clear();
+    getVertices().assign(vertices.size(), {0.0f, 0.0f, 0.0f});
 }
 
 void Mesh::computeFaceNormals() {
