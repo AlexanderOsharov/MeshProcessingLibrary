@@ -32,6 +32,8 @@ target_include_directories(MeshProcessingLibrary PUBLIC
     $<INSTALL_INTERFACE:include>
     $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/HeightMapGenerator/include>
     $<INSTALL_INTERFACE:include/HeightMapGenerator>
+    $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/HeightMapGenerator/include/third_party>
+    $<INSTALL_INTERFACE:include/HeightMapGenerator/third_party>
 )
 
 # Связывание с HeightMapGenerator
